@@ -2,25 +2,25 @@
 1. Setup Forward and Reverse Lookup zones in DNS  
 2. Setup reserve DNS server  
 
-Zone: zone01.com.ua  
-Main server: 192.168.31.31  
-Reserve server: 192.168.31.101
+**Zone:** zone01.com.ua  
+**Main server:** 192.168.31.31  
+**Reserve server:** 192.168.31.101
 ___  
 ### Install Bind  
 ```shell script
-sudo apt-get install bind9
+$ sudo apt-get install bind9
 ```  
 
 Go to Bind folder  
 ```shell script
-cd /etc/bind/
+$ cd /etc/bind/
 ```
 
 ### Configure zones file
 ```shell script
-sudo touch named.conf.my-zones
-sudo chown bind:bind named.conf.my-zones
-sudo nano named.conf.my-zones
+$ sudo touch named.conf.my-zones
+$ sudo chown bind:bind named.conf.my-zones
+$ sudo nano named.conf.my-zones
 ```
 
 ```text
@@ -40,9 +40,9 @@ zone "192.in-addr.arpa" {
  
 ### Forward lookup zone  
 ```shell script
-sudo touch db.zone01
-sudo chown bind:bind db.zone01
-sudo nano db.zone01
+$ sudo touch db.zone01
+$ sudo chown bind:bind db.zone01
+$ sudo nano db.zone01
 ```
 ```text
 $TTL    3600
@@ -71,9 +71,9 @@ ws5       IN      CNAME   omega.zone01.com.ua.
 
 ### Reverse lookup zone  
 ```shell script
-sudo touch db.192
-sudo chown bind:bind db.192
-sudo nano db.192
+$ sudo touch db.192
+$ sudo chown bind:bind db.192
+$ sudo nano db.192
 ```
 ```text
 TTL    3600
@@ -94,13 +94,13 @@ TTL    3600
 ```
 
 ```shell script
-sudo nano named.conf
+$ sudo nano named.conf
 ```
 ```text
 include "/etc/bind/named.conf.my-zones";
 ```
 ```shell script
-sudo nano named.conf.options
+$ sudo nano named.conf.options
 ```
 ```text
 options {
@@ -122,14 +122,14 @@ options {
 
 ### Restart Bind  
 ```shell script
-/etc/init.d/bind9 restart
-sudo systemctl enable bind9
-sudo systemctl restart bind9
+$ /etc/init.d/bind9 restart
+$ sudo systemctl enable bind9
+$ sudo systemctl restart bind9
 ```
 ### Add nameserver
 ```shell script
-sudo apt install resolvconf
-sudo nano /etc/resolvconf/resolv.conf.d/head
+$ sudo apt install resolvconf
+$ sudo nano /etc/resolvconf/resolv.conf.d/head
 ```
 ```text
 nameserver 127.0.0.1
@@ -137,16 +137,16 @@ nameserver 127.0.0.1
 ### Tests  
 Check zones syntax
 ```shell script
-named-checkconf
-named-checkzone zone01.com.ua /etc/bind/db.zone01
+$ named-checkconf
+$ named-checkzone zone01.com.ua /etc/bind/db.zone01
 ```
 Check using dig
 ```shell script
-dig +short @192.168.31.101 A ws1.zone01.com.ua
+$ dig +short @192.168.31.101 A ws1.zone01.com.ua
 ```
 Check using nslookup
 ```shell script
-nslookup alpha.zone01.com.ua
+$ nslookup alpha.zone01.com.ua
 ```
 ---  
 
@@ -154,19 +154,19 @@ nslookup alpha.zone01.com.ua
 Go to Slave server node
 ### Install Bind  
 ```shell script
-sudo apt-get install bind9
+$ sudo apt-get install bind9
 ```  
 
 Go to Bind folder  
 ```shell script
-cd /etc/bind/
+$ cd /etc/bind/
 ```
 
 ### Configure server  
 ```shell script
-sudo touch named.conf.my-zones
-sudo chown bind:bind named.conf.my-zones
-sudo nano named.conf.my-zones
+$ sudo touch named.conf.my-zones
+$ sudo chown bind:bind named.conf.my-zones
+$ sudo nano named.conf.my-zones
 ```
 
 ```text
@@ -185,9 +185,9 @@ zone "172.in-addr.arpa" {
 
 ### Forward lookup zone  
 ```shell script
-sudo touch db.zone01
-sudo chown bind:bind db.zone01
-sudo nano db.zone01
+$ sudo touch db.zone01
+$ sudo chown bind:bind db.zone01
+$ sudo nano db.zone01
 ```
 ```text
 $TTL    3600
@@ -215,9 +215,9 @@ ws5       IN      CNAME   omega.zone01.com.ua.
 
 ### Reverse lookup zone  
 ```shell script
-sudo touch db.192
-sudo chown bind:bind db.192
-sudo nano db.192
+$ sudo touch db.192
+$ sudo chown bind:bind db.192
+$ sudo nano db.192
 ```
 ```text
 TTL    3600
@@ -238,13 +238,13 @@ TTL    3600
 ```
 
 ```shell script
-sudo nano named.conf
+$ sudo nano named.conf
 ```
 ```text
 include "/etc/bind/named.conf.my-zones";
 ```
 ```shell script
-sudo nano named.conf.options
+$ sudo nano named.conf.options
 ```
 ```text
 options {
@@ -270,15 +270,15 @@ options {
 > dumping master file: /etc/bind/tmp-W7fCh814Kz: open: permission denied  
 
 ```shell script
-sudo nano /etc/apparmor.d/usr.sbin.named
+$ sudo nano /etc/apparmor.d/usr.sbin.named
 ```
 ```text
 /etc/bind/** rw,
 ```
  
 ```shell script
-service apparmor restart
-service bind9 restart
+$ service apparmor restart
+$ service bind9 restart
 ```
 ## Results  
 Master server  

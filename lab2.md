@@ -19,7 +19,7 @@
 ---  
 ### Add MX record
 ```shell script
-sudo nano /etc/bind/db.zone01
+$ sudo nano /etc/bind/db.zone01
 ```
 ```text
           IN      MX  10  mail.zone01.com.ua.
@@ -27,17 +27,17 @@ mail      IN      A       192.168.31.31
 ```
 Check from client
 ```shell script
-dig zone01.com.ua MX
+$ dig zone01.com.ua MX
 ```
 
 ### Install Postfix
 ```shell script
-sudo apt-get install postfix
+$ sudo apt-get install postfix
 ```
 
 ### Configure mail server
 ```shell script
-sudo nano /etc/postfix/main.cf
+$ sudo nano /etc/postfix/main.cf
 ```
 ```text
 myhostname = mail.zone01.com.ua
@@ -58,8 +58,8 @@ local_recipient_maps =
 
 ### SASL  
 ```shell script
-sudo apt-get install sasl2-bin
-sudo nano /etc/default/saslauthd
+$ sudo apt-get install sasl2-bin
+$ sudo nano /etc/default/saslauthd
 ```
 ```text
 START=yes
@@ -67,14 +67,14 @@ MECHANISMS="sasldb"
 ```
 
 ```shell script
-sudo nano /etc/postfix/sasl/smtpd.conf
+$ sudo nano /etc/postfix/sasl/smtpd.conf
 ```
 ```text
 pwcheck_method: saslauthd
 ```
 
 ```shell script
-sudo nano /etc/postfix/main.cf
+$ sudo nano /etc/postfix/main.cf
 ```
 ```text
 smtpd_sasl_auth_enable = yes
@@ -87,37 +87,37 @@ smtpd_sasl_path = private/auth
 ```
 
 ```shell script
-sudo rm -r /var/run/saslauthd/
-sudo mkdir -p /var/spool/postfix/var/run/saslauthd
-sudo ln -s /var/spool/postfix/var/run/saslauthd /var/run
-sudo chgrp sasl /var/spool/postfix/var/run/saslauthd
-sudo adduser postfix sasl
+$ sudo rm -r /var/run/saslauthd/
+$ sudo mkdir -p /var/spool/postfix/var/run/saslauthd
+$ sudo ln -s /var/spool/postfix/var/run/saslauthd /var/run
+$ sudo chgrp sasl /var/spool/postfix/var/run/saslauthd
+$ sudo adduser postfix sasl
 ```
 Restart Postfix  
 ```shell script
-sudo /etc/init.d/postfix restart
-sudo /etc/init.d/saslauthd start
+$ sudo /etc/init.d/postfix restart
+$ sudo /etc/init.d/saslauthd start
 ```
 
 ### Add users  
 ```shell script
-sudo saslpasswd2 -c -u zone01.com.ua alpha
-sudo sasldblistusers2
+$ sudo saslpasswd2 -c -u zone01.com.ua alpha
+$ sudo sasldblistusers2
 ```
 > where `alpha` - user name, `zone01.com.ua` - domain name
 
 Encode text to Base64
 ```shell script
-perl -MMIME::Base64 -e "print encode_base64('alpha@zone01.com.ua');"
+$ perl -MMIME::Base64 -e "print encode_base64('alpha@zone01.com.ua');"
 ```
 
 ### Aliases  
 ```shell script
-sudo touch /etc/postfix/aliases
-sudo newaliases
+$ sudo touch /etc/postfix/aliases
+$ sudo newaliases
 ```
 ```shell script
-sudo nano /etc/postfix/vmailbox
+$ sudo nano /etc/postfix/vmailbox
 ```
 ```text
 alpha@zone01.com.ua     zone01.com.ua/alpha
@@ -128,7 +128,7 @@ omega@zone01.com.ua     zone01.com.ua/omega
 ```
 
 ```shell script
-sudo nano /etc/postfix/valias
+$ sudo nano /etc/postfix/valias
 ```
 ```text
 ws1@zone01.com.ua       alpha@zone01.com.ua
@@ -143,7 +143,7 @@ Run
 Result put in `main.cf` in `virtual_uid_maps, virtual_gid_maps`
 
 ```shell script
-sudo nano /etc/postfix/main.cf
+$ sudo nano /etc/postfix/main.cf
 ```
 ```text
 virtual_mailbox_base = /var/mail/vhost
@@ -157,19 +157,19 @@ virtual_mailbox_domains = $mydomain
 
 Apply aliases
 ```shell script
-sudo postmap /etc/postfix/valias
-sudo postmap /etc/postfix/vmailbox
-sudo postfix reload
+$ sudo postmap /etc/postfix/valias
+$ sudo postmap /etc/postfix/vmailbox
+$ sudo postfix reload
 ```
 
 ### Certificates  
 ```shell script
-sudo openssl req -new -x509 -nodes -out smtpd.pem -keyout smtpd.pem -days 3650
+$ sudo openssl req -new -x509 -nodes -out smtpd.pem -keyout smtpd.pem -days 3650
 ```
 
 ### TLS
 ```shell script
-sudo nano /etc/postfix/main.cf
+$ sudo nano /etc/postfix/main.cf
 ```
 ```text
 smtp_use_tls = yes
@@ -189,7 +189,7 @@ smtp_tls_security_level = may
 ### White/Black list  
 Configure recipients black list
 ```shell script
-sudo nano /etc/postfix/main.cf
+$ sudo nano /etc/postfix/main.cf
 ```
 ```text
 smtpd_recipient_restrictions =
@@ -197,33 +197,33 @@ smtpd_recipient_restrictions =
    check_sender_access hash:/etc/postfix/sender_checks
 ```
 ```shell script
-sudo nano /etc/postfix/client_checks
+$ sudo nano /etc/postfix/client_checks
 ```
 ```text
 example.com               REJECT
 example1.com              OK
 ```
 ```shell script
-sudo nano /etc/postfix/sender_checks
+$ sudo nano /etc/postfix/sender_checks
 ```
 ```text
 gamma@zone01.com.ua         REJECT
 example2.com                OK
 ```
 ```shell script
-postmap /etc/postfix/client_checks
-postmap /etc/postfix/sender_checks
-/etc/init.d/postfix reload
+$ sudo postmap /etc/postfix/client_checks
+$ sudo postmap /etc/postfix/sender_checks
+$ /etc/init.d/postfix reload
 ```
 ### Allow only logged in  
 ```shell script
-sudo nano /etc/postfix/master.cf
+$ sudo nano /etc/postfix/master.cf
 ```
 ```text
 -o smtpd_relay_restrictions=permit_sasl_authenticated,permit_mynetworks,reject
 ```
 ```shell script
-sudo nano /etc/postfix/main.cf
+$ sudo nano /etc/postfix/main.cf
 ```
 ```text
 mynetworks = 127.0.0.0/8 [::ffff:127.0.0.0]/104 [::1]/128 192.168.31.101 192.168.31.31
@@ -232,18 +232,18 @@ mynetworks = 127.0.0.0/8 [::ffff:127.0.0.0]/104 [::1]/128 192.168.31.101 192.168
 
 ### Check mail list  
 ```shell script
-sudo nano /var/mail/vhost/zone01.com.ua/alpha 
+$ sudo nano /var/mail/vhost/zone01.com.ua/alpha 
 ```
 > where `alpha` - username, `zone01.com.ua` - zone domain
 
 ### Check all configuration  
 ```shell script
-postconf -n
+$ postconf -n
 ```
 
 ### SSL
 ```shell script
-sudo nano /etc/postfix/master.cf
+$ sudo nano /etc/postfix/master.cf
 ```
 ```text
 465     inet  n       -       n       -       -       smtpd
@@ -252,15 +252,15 @@ sudo nano /etc/postfix/master.cf
   -o smtpd_sasl_auth_enable=yes
 ```
 ```shell script
-sudo postfix restart
+$ sudo postfix restart
 ```
 Check if running on 465 port  
 ```shell script
-sudo netstat -tlanp | grep 465
+$ sudo netstat -tlanp | grep 465
 ```
 Connect via STARTTLS  
 ```shell script
-openssl s_client -connect 192.168.31.31:25 -starttls smtp  
+$ openssl s_client -connect 192.168.31.31:25 -starttls smtp  
 ```
 >Type all commands in lower case (in upper case could be "554 5.5.1 Error: no valid recipients")
 
