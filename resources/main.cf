@@ -1,0 +1,85 @@
+# See /usr/share/postfix/main.cf.dist for a commented, more complete version
+
+
+# Debian specific:  Specifying a file name will cause the first
+# line of that file to be used as the name.  The Debian default
+# is /etc/mailname.
+#myorigin = /etc/mailname
+
+smtpd_banner = $myhostname ESMTP $mail_name (Ubuntu)
+biff = no
+
+# appending .domain is the MUA's job.
+append_dot_mydomain = no
+
+# Uncomment the next line to generate "delayed mail" warnings
+#delay_warning_time = 4h
+
+readme_directory = no
+
+# See http://www.postfix.org/COMPATIBILITY_README.html -- default to 2 on
+# fresh installs.
+compatibility_level = 2
+
+# TLS parameters
+smtp_use_tls = yes
+smtpd_use_tls = yes
+smtp_tls_note_starttls_offer = yes
+smtpd_tls_key_file = /etc/postfix/ssl/smtpd.pem
+smtpd_tls_cert_file = $smtpd_tls_key_file
+smtpd_tls_CAfile = $smtpd_tls_key_file
+smtpd_tls_loglevel = 5
+smtpd_tls_received_header = yes
+smtpd_tls_session_cache_timeout = 3600s
+tls_random_source = dev:/dev/urandom
+
+smtp_tls_security_level = may
+
+# See /usr/share/doc/postfix/TLS_README.gz in the postfix-doc package for
+# information on enabling SSL in the smtp client.
+
+myhostname = mail.zone01.com.ua
+mydomain = zone01.com.ua
+alias_maps = hash:/etc/aliases
+alias_database = hash:/etc/aliases
+myorigin = /etc/mailname
+mydestination = localhost
+relayhost =
+#mynetworks = localhost
+mynetworks = 127.0.0.0/8 [::ffff:127.0.0.0]/104 [::1]/128 192.168.31.101 192.168.31.31
+mailbox_size_limit = 0
+recipient_delimiter = +
+inet_interfaces = all
+inet_protocols = all
+
+virtual_mailbox_base = /var/mail/vhost
+virtual_mailbox_maps = hash:/etc/postfix/vmailbox
+virtual_minimum_uid = 100
+virtual_uid_maps = static:113
+virtual_gid_maps = static:113
+virtual_alias_maps = hash:/etc/postfix/valias
+virtual_mailbox_domains = $mydomain
+virtual_transport = dovecot
+dovecot_destination_recipient_limit = 1
+
+queue_directory = /var/spool/postfix
+
+# SASL parameters
+smtpd_sasl_auth_enable = yes
+smtpd_sasl_security_options = noanonymous
+broken_sasl_auth_clients = yes
+smtpd_sasl_local_domain =
+smtpd_sasl_authenticated_header = yes
+smtpd_sasl_type = dovecot
+smtpd_sasl_path = private/auth
+
+# Black list
+smtpd_recipient_restrictions =
+   check_client_access hash:/etc/postfix/client_checks,
+   check_sender_access hash:/etc/postfix/sender_checks,
+   permit_mynetworks,
+   permit_sasl_authenticated,
+   reject_unauth_destination
+
+mailbox_transport = lmtp:unix:/var/run/cyrus/socket/lmtp
+local_recipient_maps =
