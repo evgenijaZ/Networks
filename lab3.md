@@ -181,10 +181,44 @@ POP3
 IMAP  
 `openssl s_client -connect mail.zone01.com.ua:imaps` or `openssl s_client -connect mail.zone01.com.ua:imap -starttls imap`
 
+### Test CRAM-MD5 authentication  
+
+CRAM-MD5 password is not transmitted as plain text, hash comparison is used instead  
+
+```shell script
+$ sudo nano md5cram.pl
+```
+```text
+use strict;
+use MIME::Base64 qw(encode_base64 decode_base64);
+use Digest::HMAC_MD5;
+
+die "Usage: $0 username password ticket\n" unless $#ARGV == 2;
+
+my ($username, $password, $ticket64) = @ARGV;
+
+my $ticket = decode_base64($ticket64) or
+die ("Unable to decode Base64 encoded string '$ticket64'\n");
+my $password_md5 = Digest::HMAC_MD5::hmac_md5_hex($ticket, $password);
+print encode_base64 ("$username $password_md5", "");
+```
+Run script with login, password and keyword received when trying to auth using cram-md5 to retrieve hash.  
+Example:
+```shell script
+$ sudo perl md5cram.pl mercury@zone01.com.ua mercury PDg4NDMwODY1MjQwMDk3ODYuMTU5MDQ0NjI0NUB1YnVudHVfc2VydmVyPg==
+```
+> `mercury@zone01.com.ua` is login, `mercury` is password, 
+`PDg4NDMwODY1MjQwMDk3ODYuMTU5MDQ0NjI0NUB1YnVudHVfc2VydmVyPg==` is keyword received from the server as response on `01 AUTHENTICATE  CRAM-MD5` (IMAP) or `AUTH CRAM-MD5` (POP3)
+
+### Mails
+Mails should be available in the `/home/vmail/%domain%/%user%/new`  
+
 ---  
 ### Results
 POP3  
 ![POP3](/imgs/lab3_POP3.png)  
 IMAP  
 ![IMAP](/imgs/lab3_IMAP.png)  
+Authentication using CRAM-MD5  
+![CRAM-MD5](/imgs/lab3_CRAM-MD5.png)  
 
