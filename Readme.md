@@ -4,4 +4,4 @@
 4. [FTP](lab4.md)
 5. [NFS](lab5.md)
 6. [Samba](lab6.md)  
-7. HTTP
+7. [HTTP](lab7.md)
